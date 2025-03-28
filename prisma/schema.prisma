@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Registration {
+  id           String     @id @default(uuid())
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  tournamentId String
+  team         Team       @relation(fields: [teamId], references: [id])
+  teamId       String
+  createdAt    DateTime   @default(now())
+
+  @@unique([tournamentId, teamId]) // Ensure a team can register only once per tournament
+}
+
+model Player {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  team      Team?    @relation(fields: [teamId], references: [id])
+  teamId    String?
+  createdAt DateTime @default(now())
+}
+
+enum MatchStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+}
+
+enum Role {
+  PLAYER
+  ADMIN
+}
+
+enum TournamentStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  username  String   @unique
+  role      Role     @default(PLAYER)
+  createdAt DateTime @default(now())
+  teams     Team[]
+  players   Player[]
+}
+
+model Team {
+  id            String         @id @default(uuid())
+  name          String
+  creator       User           @relation(fields: [userId], references: [id])
+  userId        String
+  players       Player[]
+  registrations Registration[]
+  createdAt     DateTime       @default(now())
+  Match         Match[]
+  MatchTeam     MatchTeam[]
+  Score         Score[]
+}
+
+model Tournament {
+  id            String           @id @default(uuid())
+  name          String
+  game          Game             @relation(fields: [gameId], references: [id])
+  gameId        String
+  status        TournamentStatus @default(UPCOMING)
+  startDate     DateTime
+  endDate       DateTime?
+  maxTeams      Int
+  registrations Registration[]
+  matches       Match[]
+}
+
+model Game {
+  id         String       @id @default(uuid())
+  name       String
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  Tournament Tournament[]
+}
+
+model Match {
+  id           String      @id @default(uuid())
+  tournament   Tournament  @relation(fields: [tournamentId], references: [id])
+  tournamentId String
+  teams        MatchTeam[] // Relasi ke tabel junction
+  winner       Team?       @relation(fields: [winnerId], references: [id])
+  winnerId     String?
+  scheduledAt  DateTime
+  status       MatchStatus @default(UPCOMING)
+  scores       Score[]
+}
+
+// Tabel junction untuk relasi many-to-many Match-Team
+model MatchTeam {
+  match    Match   @relation(fields: [matchId], references: [id])
+  matchId  String
+  team     Team    @relation(fields: [teamId], references: [id])
+  teamId   String
+  isWinner Boolean @default(false) // Flag pemenang
+
+  @@id([matchId, teamId]) // Composite primary key
+}
+
+model Score {
+  id      String @id @default(uuid())
+  match   Match  @relation(fields: [matchId], references: [id])
+  matchId String
+  team    Team   @relation(fields: [teamId], references: [id])
+  teamId  String
+  points  Int // Score per tim
+}
