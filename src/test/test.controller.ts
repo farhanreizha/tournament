@@ -1,9 +1,11 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Req, UseGuards } from "@nestjs/common";
+import { AuthGuard } from "src/common/guards/auth.guard";
 
-@Controller("test")
+@UseGuards(AuthGuard)
+@Controller("api/test")
 export class TestController {
   @Get()
-  async test() {
+  async test(@Req() req) {
     return {
       user: {
         name: "test",

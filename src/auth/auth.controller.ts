@@ -1,12 +1,11 @@
 import { AuthService } from "./auth.service";
 import { Body, Controller, HttpCode, Post } from "@nestjs/common";
 import { SignUpDto } from "./dtos/signup.dto";
-import { WebResponseDto } from "src/response-web.dto";
 import { refreshTokenResponse, UserResponse } from "./dtos/user.dto";
 import { SigninDto } from "./dtos/signin.dto";
 import { RefreshTokenDto } from "./dtos/refresh-token.dto";
 
-@Controller("auth")
+@Controller("api/auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

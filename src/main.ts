@@ -5,12 +5,12 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 
-import { AllExceptionsFilter } from "./filters/http-exception.filter";
+import { AllExceptionsFilter } from "./common/filters/http-exception.filter";
 import { AppModule } from "./app.module";
-import { LoggingMiddleware } from "./middlewares/logging.middleware";
+import { LoggingMiddleware } from "./common/middlewares/logging.middleware";
 import { NestFactory } from "@nestjs/core";
-import { RequestIdMiddleware } from "./middlewares/request-id.middleware";
-import { ResponseInterceptor } from "./responses/response.interceptor";
+import { RequestIdMiddleware } from "./common/middlewares/request-id.middleware";
+import { ResponseInterceptor } from "./common/responses/response.interceptor";
 import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
 
 async function bootstrap() {

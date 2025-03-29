@@ -59,6 +59,8 @@ export class AuthService {
       throw new HttpException("Username or password is invalid", 401);
     }
 
+    console.log("user", user);
+
     const token = await this.generateToken(user.id);
 
     return {
@@ -71,24 +73,29 @@ export class AuthService {
   public async refreshToken(body: RefreshTokenDto) {
     const { refreshToken } = body;
 
-    // TODO: Implement refresh token logic, and delete old token
-    const token = await this.prismaService.refreshToken.findFirst({
+    const oldToken = await this.prismaService.refreshToken.findFirst({
       where: {
         token: refreshToken,
-        expiryDate: {
-          gte: new Date(),
-        },
+        expiryDate: { gte: new Date() },
       },
     });
 
-    if (!token) {
+    if (!oldToken) {
       throw new HttpException("Invalid refresh token", 401);
     }
 
-    return this.generateToken(token.userId);
+    const newToken = await this.prismaService.$transaction(async (prisma) => {
+      const token = await this.generateToken(oldToken.userId);
+      await prisma.refreshToken.delete({
+        where: { token: oldToken.token },
+      });
+      return token;
+    });
+
+    return newToken;
   }
 
-  async generateToken(userId) {
+  async generateToken(userId: string) {
     const accessToken = this.JwtService.sign({ userId });
     const refreshToken = uuidv4();
 
@@ -100,10 +107,10 @@ export class AuthService {
     };
   }
 
-  async storeRefreshToken(userId, refreshToken) {
-    // Set the refresh token expiry date to 7 days from now
+  async storeRefreshToken(userId: string, refreshToken: string) {
+    // Set the refresh token expiry date to 1 days from now
     const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + 7);
+    expiryDate.setDate(expiryDate.getDate() + 1);
 
     await this.prismaService.refreshToken.create({
       data: {

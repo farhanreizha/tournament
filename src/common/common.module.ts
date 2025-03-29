@@ -8,7 +8,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { PrismaService } from "./prisma.service";
 import { ValidationService } from "./validation.service";
 import { WinstonModule } from "nest-winston";
-import config from "src/config/config";
+import config from "src/common/config/config";
 
 @Global()
 @Module({
