@@ -1,34 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { AuthService } from "./auth.service";
+import { Body, Controller, HttpCode, Post } from "@nestjs/common";
+import { SignUpDto } from "./dtos/signup.dto";
+import { WebResponseDto } from "src/response-web.dto";
+import { refreshTokenResponse, UserResponse } from "./dtos/user.dto";
+import { SigninDto } from "./dtos/signin.dto";
+import { RefreshTokenDto } from "./dtos/refresh-token.dto";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Post("signup")
+  @HttpCode(200)
+  async signup(@Body() body: SignUpDto): Promise<UserResponse> {
+    const result = await this.authService.signup(body);
+    return result;
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @Post("signin")
+  @HttpCode(200)
+  async signin(@Body() body: SigninDto): Promise<UserResponse> {
+    const result = await this.authService.signin(body);
+    return result;
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Post("refresh-token")
+  @HttpCode(200)
+  async refreshToken(
+    @Body() body: RefreshTokenDto,
+  ): Promise<refreshTokenResponse> {
+    const result = await this.authService.refreshToken(body);
+    return result;
   }
 }
