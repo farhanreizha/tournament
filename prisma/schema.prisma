@@ -21,8 +21,8 @@ model Registration {
 
 model Player {
   id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
+  nickname  String
+  gameId    String   @unique
   team      Team?    @relation(fields: [teamId], references: [id])
   teamId    String?
   createdAt DateTime @default(now())
@@ -58,7 +58,6 @@ model User {
   role         Role           @default(PLAYER)
   createdAt    DateTime       @default(now())
   teams        Team[]
-  players      Player[]
   RefreshToken RefreshToken[]
 }
 

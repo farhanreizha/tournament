@@ -1,4 +1,10 @@
-import { HttpException, Inject, Injectable, Logger } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { SignUpDto } from "./dtos/signup.dto";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { PrismaService } from "src/common/prisma.service";
@@ -26,7 +32,7 @@ export class AuthService {
     });
 
     if (totalUserWithSameUsername != 0) {
-      throw new HttpException("Username / Email already exists", 400);
+      throw new BadRequestException("Username / Email already exists");
     }
 
     body.password = await bcrypt.hash(body.password, 10);
@@ -50,16 +56,14 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new HttpException("Username or password is invalid", 401);
+      throw new UnauthorizedException("Username or password is invalid");
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new HttpException("Username or password is invalid", 401);
+      throw new UnauthorizedException("Username or password is invalid");
     }
-
-    console.log("user", user);
 
     const token = await this.generateToken(user.id);
 
@@ -81,7 +85,7 @@ export class AuthService {
     });
 
     if (!oldToken) {
-      throw new HttpException("Invalid refresh token", 401);
+      throw new UnauthorizedException("Invalid refresh token");
     }
 
     const newToken = await this.prismaService.$transaction(async (prisma) => {
@@ -96,7 +100,12 @@ export class AuthService {
   }
 
   async generateToken(userId: string) {
-    const accessToken = this.JwtService.sign({ userId });
+    const { role } = (await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    })) as { role: string };
+
+    const accessToken = this.JwtService.sign({ userId, role });
     const refreshToken = uuidv4();
 
     await this.storeRefreshToken(userId, refreshToken);

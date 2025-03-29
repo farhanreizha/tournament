@@ -1,9 +1,9 @@
 import {
   CanActivate,
   ExecutionContext,
-  HttpException,
   Inject,
   Injectable,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { Request } from "express";
@@ -22,16 +22,17 @@ export class AuthGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-    if (!token) throw new HttpException("invalid token", 401);
+    if (!token) throw new UnauthorizedException("invalid token");
 
     try {
       const payload = this.jwtService.verify(token, {
         secret: process.env.JWT_SECRET,
       });
       request.userId = payload.userId; // Simpan payload ke request untuk digunakan di controller
+      request.userRole = payload.role; // Simpan role ke request untuk digunakan di controller
     } catch (e) {
       this.logger.error(e.message);
-      throw new HttpException("invalid token", 401);
+      throw new UnauthorizedException("invalid token");
     }
     return true;
   }
