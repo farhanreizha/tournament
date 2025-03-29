@@ -3,7 +3,7 @@ import { CreatePlayerDto } from "./dto/create-player.dto";
 import { UpdatePlayerDto } from "./dto/update-player.dto";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { Logger } from "winston";
-import { PrismaService } from "src/common/prisma.service";
+import { PrismaService } from "@/common/prisma.service";
 
 @Injectable()
 export class PlayersService {

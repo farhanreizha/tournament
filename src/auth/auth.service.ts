@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { SignUpDto } from "./dtos/signup.dto";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
-import { PrismaService } from "src/common/prisma.service";
+import { PrismaService } from "@/common/prisma.service";
 import * as bcrypt from "bcrypt";
 import { SigninDto } from "./dtos/signin.dto";
 import { JwtService } from "@nestjs/jwt";
@@ -68,9 +68,9 @@ export class AuthService {
     const token = await this.generateToken(user.id);
 
     return {
-      ...token,
       email: user.email,
       username: user.username,
+      ...token,
     };
   }
 
@@ -88,7 +88,7 @@ export class AuthService {
       throw new UnauthorizedException("Invalid refresh token");
     }
 
-    const newToken = await this.prismaService.$transaction(async (prisma) => {
+    const newToken = await this.prismaService.$transaction(async prisma => {
       const token = await this.generateToken(oldToken.userId);
       await prisma.refreshToken.delete({
         where: { token: oldToken.token },

@@ -53,7 +53,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       errors = { message };
     }
 
-    const requestId = request.headers["requestId"] || "";
+    const requestId = request.headers["X-REQUEST-ID"] || "";
 
     // Log the error
     logger.error(`[ERROR] ${request.method} ${request.url} - ${status}`, {

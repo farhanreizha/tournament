@@ -1,3 +1,4 @@
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import {
   HttpException,
   HttpStatus,
@@ -42,6 +43,16 @@ async function bootstrap() {
 
   app.use(new RequestIdMiddleware().use);
   app.use(new LoggingMiddleware().use);
+
+  const mainDocument = new DocumentBuilder()
+    .setTitle("Turnament API")
+    .setDescription("API Documentation For Turnament Application")
+    .setVersion("1.0")
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, mainDocument);
+  SwaggerModule.setup("api", app, document);
 
   await app.listen(process.env.PORT ?? 3000);
 }

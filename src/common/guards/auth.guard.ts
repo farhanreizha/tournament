@@ -22,7 +22,11 @@ export class AuthGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-    if (!token) throw new UnauthorizedException("invalid token");
+
+    if (!token)
+      throw new UnauthorizedException(
+        "Authorization token not found in request header",
+      );
 
     try {
       const payload = this.jwtService.verify(token, {
@@ -32,7 +36,7 @@ export class AuthGuard implements CanActivate {
       request.userRole = payload.role; // Simpan role ke request untuk digunakan di controller
     } catch (e) {
       this.logger.error(e.message);
-      throw new UnauthorizedException("invalid token");
+      throw new UnauthorizedException("Authorization token is invalid");
     }
     return true;
   }

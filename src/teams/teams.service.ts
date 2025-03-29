@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { CreateTeamDto } from "./dto/create-team.dto";
 import { UpdateTeamDto } from "./dto/update-team.dto";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
-import { PrismaService } from "src/common/prisma.service";
+import { PrismaService } from "@/common/prisma.service";
 
 @Injectable()
 export class TeamsService {
@@ -31,6 +31,7 @@ export class TeamsService {
     this.logger.debug(`Find teams`);
     const teams = await this.prismaService.team.findMany({
       select: {
+        id: true,
         name: true,
         creator: {
           select: {
@@ -40,7 +41,10 @@ export class TeamsService {
       },
     });
 
-    return teams.map((team) => ({
+    if (teams.length === 0) throw new NotFoundException("Teams Not Found");
+
+    return teams.map(team => ({
+      id: team.id,
       name: team.name,
       creator: team.creator.username,
     }));
@@ -54,6 +58,7 @@ export class TeamsService {
         id,
       },
       select: {
+        id: true,
         name: true,
         creator: {
           select: {
@@ -66,6 +71,7 @@ export class TeamsService {
     if (!team) throw new NotFoundException("Team not found");
 
     return {
+      id: team.id,
       name: team.name,
       creator: team.creator.username,
     };
@@ -80,11 +86,25 @@ export class TeamsService {
           id,
         },
         data: updateTeamDto,
+        select: {
+          name: true,
+          id: true,
+          creator: {
+            select: {
+              username: true,
+            },
+          },
+        },
       })
       .catch(() => {
         throw new NotFoundException("Team not found");
       });
-    return team;
+
+    return {
+      id: team.id,
+      name: team.name,
+      creator: team.creator.username,
+    };
   }
 
   async remove(id: string) {

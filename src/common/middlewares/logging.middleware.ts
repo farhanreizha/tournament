@@ -8,10 +8,11 @@ import { v4 as uuidv4 } from "uuid";
 export class LoggingMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     // Ambil `request_id` dari header atau buat baru jika tidak ada
-    let requestId = req.headers["request_id"] as string;
+    let requestId = req.headers["X-REQUEST-ID"] as string;
+
     if (!requestId) {
       requestId = uuidv4();
-      req.headers["request_id"] = requestId;
+      req.headers["X-REQUEST-ID"] = requestId;
     }
 
     const start = Date.now();

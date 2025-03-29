@@ -8,14 +8,14 @@ import { JwtModule } from "@nestjs/jwt";
 import { PrismaService } from "./prisma.service";
 import { ValidationService } from "./validation.service";
 import { WinstonModule } from "nest-winston";
-import config from "src/common/config/config";
+import config from "@/common/config/config";
 
 @Global()
 @Module({
   imports: [
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService) => ({
+      useFactory: async configService => ({
         secret: configService.get("jwt.secret"),
         signOptions: { expiresIn: configService.get("jwt.expiresIn") },
       }),
