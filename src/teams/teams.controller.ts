@@ -27,7 +27,7 @@ import {
   ApiOperation,
 } from "@nestjs/swagger";
 import { ErrorResponse } from "@/dtos/response-web.dto";
-import { TeamListResponse, TeamResponse } from "./dto/team.dto";
+import { TeamResponse } from "./dto/team.dto";
 
 @ApiBearerAuth()
 @ApiNotFoundResponse({
@@ -63,29 +63,29 @@ export class TeamsController {
   @ApiOperation({ summary: "List Teams" })
   @ApiOkResponse({
     description: "Successfully Get Team",
-    type: [TeamListResponse],
+    type: [TeamResponse],
   })
   @Get()
   @HttpCode(200)
-  async findAll(): Promise<TeamListResponse[]> {
+  async findAll(): Promise<TeamResponse[]> {
     return await this.teamsService.findAll();
   }
 
   @ApiOperation({ summary: "Get Team" })
   @ApiOkResponse({
     description: "Successfully Get Team",
-    type: TeamListResponse,
+    type: TeamResponse,
   })
   @Get(":id")
   @HttpCode(200)
-  async findOne(@Param("id") id: string): Promise<TeamListResponse> {
+  async findOne(@Param("id") id: string): Promise<TeamResponse> {
     return await this.teamsService.findOne(id);
   }
 
   @ApiOperation({ summary: "Update Team" })
   @ApiOkResponse({
     description: "Successfully Update Team",
-    type: TeamListResponse,
+    type: TeamResponse,
   })
   @ApiBadRequestResponse({
     description: "Bad Request",
@@ -96,7 +96,7 @@ export class TeamsController {
   async update(
     @Param("id") id: string,
     @Body() updateTeamDto: UpdateTeamDto,
-  ): Promise<TeamListResponse> {
+  ): Promise<TeamResponse> {
     return await this.teamsService.update(id, updateTeamDto);
   }
 

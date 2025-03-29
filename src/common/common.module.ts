@@ -28,7 +28,9 @@ import config from "@/common/config/config";
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      cache: false,
+      cache:
+        process.env.NODE_ENV === "production" ||
+        process.env.NODE_ENV === "staging",
       load: [config],
     }),
   ],

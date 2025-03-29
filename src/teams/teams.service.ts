@@ -3,13 +3,25 @@ import { CreateTeamDto } from "./dto/create-team.dto";
 import { UpdateTeamDto } from "./dto/update-team.dto";
 import { WINSTON_MODULE_PROVIDER } from "nest-winston";
 import { PrismaService } from "@/common/prisma.service";
+import { TeamResource } from "./resources/team.resource";
 
 @Injectable()
 export class TeamsService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
-    private prismaService: PrismaService,
+    private readonly prismaService: PrismaService,
+    private readonly teamResource: TeamResource,
   ) {}
+
+  private readonly teamSelect = {
+    id: true,
+    name: true,
+    creator: {
+      select: {
+        username: true,
+      },
+    },
+  };
 
   async create(createTeamDto: CreateTeamDto, userId: string) {
     this.logger.debug(`Create team ${JSON.stringify(createTeamDto)}`);
@@ -20,34 +32,20 @@ export class TeamsService {
         name,
         userId,
       },
+      select: this.teamSelect,
     });
 
-    return {
-      name: team.name,
-    };
+    return this.teamResource.toJSON(team);
   }
 
   async findAll() {
     this.logger.debug(`Find teams`);
     const teams = await this.prismaService.team.findMany({
-      select: {
-        id: true,
-        name: true,
-        creator: {
-          select: {
-            username: true,
-          },
-        },
-      },
+      select: this.teamSelect,
     });
 
     if (teams.length === 0) throw new NotFoundException("Teams Not Found");
-
-    return teams.map(team => ({
-      id: team.id,
-      name: team.name,
-      creator: team.creator.username,
-    }));
+    return teams.map(team => this.teamResource.toJSON(team));
   }
 
   async findOne(id: string) {
@@ -57,54 +55,28 @@ export class TeamsService {
       where: {
         id,
       },
-      select: {
-        id: true,
-        name: true,
-        creator: {
-          select: {
-            username: true,
-          },
-        },
-      },
+      select: this.teamSelect,
     });
 
     if (!team) throw new NotFoundException("Team not found");
-
-    return {
-      id: team.id,
-      name: team.name,
-      creator: team.creator.username,
-    };
+    return this.teamResource.toJSON(team);
   }
 
   async update(id: string, updateTeamDto: UpdateTeamDto) {
     this.logger.debug("update team");
-    console.log(updateTeamDto);
     const team = await this.prismaService.team
       .update({
         where: {
           id,
         },
         data: updateTeamDto,
-        select: {
-          name: true,
-          id: true,
-          creator: {
-            select: {
-              username: true,
-            },
-          },
-        },
+        select: this.teamSelect,
       })
       .catch(() => {
         throw new NotFoundException("Team not found");
       });
 
-    return {
-      id: team.id,
-      name: team.name,
-      creator: team.creator.username,
-    };
+    return this.teamResource.toJSON(team);
   }
 
   async remove(id: string) {
