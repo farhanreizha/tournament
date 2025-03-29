@@ -25,7 +25,7 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
-      exceptionFactory: (errors) => {
+      exceptionFactory: errors => {
         const formattedErrors = errors.reduce(
           (acc: Record<string, string[]>, err) => {
             acc[err.property] = Object.values(err.constraints || {});
@@ -57,6 +57,6 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3000);
 }
 
-bootstrap().catch((err) => {
+bootstrap().catch(err => {
   console.error("Error during application bootstrap:", err);
 });

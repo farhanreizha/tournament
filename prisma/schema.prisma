@@ -8,24 +8,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Registration {
-  id           String     @id @default(uuid())
-  tournament   Tournament @relation(fields: [tournamentId], references: [id])
-  tournamentId String
-  team         Team       @relation(fields: [teamId], references: [id])
-  teamId       String
-  createdAt    DateTime   @default(now())
-
-  @@unique([tournamentId, teamId]) // Ensure a team can register only once per tournament
-}
-
-model Player {
-  id        String   @id @default(uuid())
-  nickname  String
-  gameId    String   @unique
-  team      Team?    @relation(fields: [teamId], references: [id])
-  teamId    String?
-  createdAt DateTime @default(now())
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 enum MatchStatus {
@@ -45,9 +30,24 @@ enum TournamentStatus {
   COMPLETED
 }
 
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+model Registration {
+  id           String     @id @default(uuid())
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  tournamentId String
+  team         Team       @relation(fields: [teamId], references: [id])
+  teamId       String
+  createdAt    DateTime   @default(now())
+
+  @@unique([tournamentId, teamId]) // Ensure a team can register only once per tournament
+}
+
+model Player {
+  id        String   @id @default(uuid())
+  nickname  String
+  gameId    String   @unique
+  team      Team?    @relation(fields: [teamId], references: [id])
+  teamId    String?
+  createdAt DateTime @default(now())
 }
 
 model User {
