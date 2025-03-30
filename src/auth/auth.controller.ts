@@ -1,5 +1,12 @@
 import { AuthService } from "./auth.service";
-import { Body, Controller, HttpCode, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 import { SignUpDto } from "./dtos/signup.dto";
 import { refreshTokenResponse, UserResponse } from "./dtos/user.dto";
 import { SigninDto } from "./dtos/signin.dto";
@@ -26,7 +33,7 @@ export class AuthController {
   @ApiOperation({ summary: "Signup for new user" })
   @ApiOkResponse({ description: "Successfully Register", type: UserResponse })
   @Post("signup")
-  @HttpCode(200)
+  @HttpCode(HttpStatus.CREATED)
   async signup(@Body() body: SignUpDto): Promise<UserResponse> {
     const result = await this.authService.signup(body);
     return result;
@@ -35,7 +42,7 @@ export class AuthController {
   @ApiOperation({ summary: "Signin for existing user" })
   @ApiOkResponse({ description: "Successfully Login", type: UserResponse })
   @Post("signin")
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async signin(@Body() body: SigninDto): Promise<UserResponse> {
     const result = await this.authService.signin(body);
     return result;
@@ -49,7 +56,7 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Post("refresh-token")
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async refreshToken(
     @Body() body: RefreshTokenDto,
   ): Promise<refreshTokenResponse> {

@@ -9,6 +9,7 @@ import {
   Req,
   UseGuards,
   HttpCode,
+  HttpStatus,
 } from "@nestjs/common";
 import { TeamsService } from "./teams.service";
 import { CreateTeamDto } from "./dto/create-team.dto";
@@ -52,6 +53,7 @@ export class TeamsController {
     type: ErrorResponse,
   })
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() createTeamDto: CreateTeamDto,
     @Req() res,
@@ -66,7 +68,7 @@ export class TeamsController {
     type: [TeamResponse],
   })
   @Get()
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async findAll(): Promise<TeamResponse[]> {
     return await this.teamsService.findAll();
   }
@@ -77,7 +79,7 @@ export class TeamsController {
     type: TeamResponse,
   })
   @Get(":id")
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async findOne(@Param("id") id: string): Promise<TeamResponse> {
     return await this.teamsService.findOne(id);
   }
@@ -92,7 +94,7 @@ export class TeamsController {
     type: ErrorResponse,
   })
   @Patch(":id")
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async update(
     @Param("id") id: string,
     @Body() updateTeamDto: UpdateTeamDto,
@@ -103,7 +105,7 @@ export class TeamsController {
   @ApiOperation({ summary: "Delete Team" })
   @ApiNoContentResponse()
   @Delete(":id")
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
   async remove(@Param("id") id: string) {
     return await this.teamsService.remove(id);
   }

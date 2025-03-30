@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Query,
@@ -52,7 +53,7 @@ export class UsersController {
     type: ErrorResponse,
   })
   @Patch(":id")
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiBody({
     type: UpdateUserDto,
     required: false,
